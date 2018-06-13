@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".transport.BluetoothActivity">
+    <Button
+        android:id="@+id/bt_support"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="btSupport"
+        android:text="判断是否支持"/>
+
+
+    <Button
+        android:id="@+id/bt_start_blue"
+        app:layout_constraintLeft_toRightOf="@+id/bt_support"
+        android:layout_width="wrap_content"
+        android:onClick="btStartBlue"
+        android:layout_height="wrap_content"
+        android:text="启用蓝牙"/>
+
+    <Button
+        android:id="@+id/bt_bond_devices"
+        app:layout_constraintLeft_toRightOf="@+id/bt_start_blue"
+        android:layout_width="wrap_content"
+        android:onClick="btBondDevices"
+        android:layout_height="wrap_content"
+        android:text="已配对的设备"/>
+    <Button
+        app:layout_constraintTop_toBottomOf="@+id/bt_support"
+        android:id="@+id/bt_search_blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="btSearchBlue"
+        android:text="扫描设备"/>
+
+
+    <ListView
+        app:layout_constraintTop_toBottomOf="@+id/bt_search_blue"
+        android:id="@+id/lv_blue"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+
+
+
+
+</android.support.constraint.ConstraintLayout>
