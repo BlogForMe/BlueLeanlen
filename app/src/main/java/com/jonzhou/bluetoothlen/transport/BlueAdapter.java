@@ -21,6 +21,15 @@ public class  BlueAdapter extends BaseAdapter {
 
     public  void  addDevice(BluetoothDevice device){
         if (!mLeDevices.contains(device)){
+//            if (!(device.getBondState()==BluetoothDevice.BOND_BONDED))
+            mLeDevices.add(device);
+            notifyDataSetChanged();
+        }
+    }
+
+    public void replace(BluetoothDevice device) {
+        if (mLeDevices.contains(device)){
+            mLeDevices.remove(device);
             mLeDevices.add(device);
         }
         notifyDataSetChanged();
@@ -60,4 +69,6 @@ public class  BlueAdapter extends BaseAdapter {
 
         return view;
     }
+
+
 }
