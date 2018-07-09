@@ -12,6 +12,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,6 +39,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jonzhou.bluetoothlen.BytePrintUtil;
 import com.jonzhou.bluetoothlen.R;
 
 import java.util.LinkedList;
@@ -238,6 +240,8 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
             //把byte数组转成16进制字符串，方便查看
             Log.e(TAG, "onScanResult :" + result.getScanRecord().toString());
             BluetoothDevice device = result.getDevice();
+            ScanRecord scanRecord = result.getScanRecord();
+            int rssi = result.getRssi();
             blueAdapter.addDevice(device);
         }
 
@@ -273,6 +277,7 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices();        //连接成功， 开始搜索服务
                 Log.i(TAG, "onConnectionStateChange  连接成功" + status);
+                Toast.makeText(BluetoothActivity.this,"连接成功",Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -312,7 +317,7 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            Log.i(TAG, "The response is " + "onCharacteristicChanged");
+            Log.i(TAG, "The response is " + "onCharacteristicChanged" + BytePrintUtil.bytes2hex(characteristic.getValue()));
         }
     };
 
