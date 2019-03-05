@@ -57,7 +57,7 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
 
     public final String TAG = getClass().getSimpleName();
 
-//    public static final String GATT_SERVICE_PRIMARY_1 = "0000fff0-0000-1000-8000-00805f9b34fb";  // 体达 体温计
+    //    public static final String GATT_SERVICE_PRIMARY_1 = "0000fff0-0000-1000-8000-00805f9b34fb";  // 体达 体温计
 //    public static final String CHARACTERISTIC_NOTIFY_1 = "0000fff1-0000-1000-8000-00805f9b34fb";
 //
     public static final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
@@ -308,18 +308,24 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
 //                i++;
 //                UUID mUuid = service.getUuid();
 ////                if (GATT_SERVICE_PRIMARY_1.equals(mUuid.toString())) {
-//                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
-//                        Log.i(TAG, " characteristic  UUID   " + characteristic.getUuid());
-//                        for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
-//                            if (descriptor != null) {
-//                                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-//                                bluetoothGatt.writeDescriptor(descriptor);
-//                            }
-////                        }
-//                        bluetoothGatt.setCharacteristicNotification(characteristic, true);
+//                for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
+//                    Log.i(TAG, " characteristic  UUID   " + characteristic.getUuid());
+//                    for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
+//                        if (descriptor != null) {
+//                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//                            bluetoothGatt.writeDescriptor(descriptor);
+//                        }
+//                    }
+//                    BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CCCD);
+//                    if (descriptor != null) {
+//                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//                        gatt.writeDescriptor(descriptor);
+//                    }
+//                    bluetoothGatt.setCharacteristicNotification(characteristic, true);
 //                }
 //            }
-//        }
+
+
             BluetoothGattService service = gatt.getService(UUID.fromString(GATT_SERVICE_PRIMARY_1));
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(CHARACTERISTIC_NOTIFY_1));
             for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
@@ -330,7 +336,6 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
                 boolean isNotify = gatt.setCharacteristicNotification(characteristic, true);
                 Log.i(TAG, " isNotify   " + isNotify);
             }
-
 //            //调用以便当命令发送后返回信息可以自动返回
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CCCD);
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
@@ -362,7 +367,7 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
             super.onDescriptorWrite(gatt, descriptor, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Log.i(TAG, "onDescriptorWrite: " + "设置成功");
-            }else {
+            } else {
                 Log.i(TAG, "onDescriptorWrite: " + "设置失败");
             }
         }
