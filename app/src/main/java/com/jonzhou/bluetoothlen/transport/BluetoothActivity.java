@@ -46,6 +46,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 
 /**
@@ -56,10 +57,14 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
 
     public final String TAG = getClass().getSimpleName();
 
-    public static final String GATT_SERVICE_PRIMARY_1 = "0000fff0-0000-1000-8000-00805f9b34fb";  // 体达 体温计
-    public static final String CHARACTERISTIC_NOTIFY_1 = "0000fff1-0000-1000-8000-00805f9b34fb";
+//    public static final String GATT_SERVICE_PRIMARY_1 = "0000fff0-0000-1000-8000-00805f9b34fb";  // 体达 体温计
+//    public static final String CHARACTERISTIC_NOTIFY_1 = "0000fff1-0000-1000-8000-00805f9b34fb";
+//
+    public static final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
-    public static final UUID CCC = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+    public static final String GATT_SERVICE_PRIMARY_1 = "00001000-0000-1000-8000-00805f9b34fb";  // 体达 体温计
+    public static final String CHARACTERISTIC_NOTIFY_1 = "00001002-0000-1000-8000-00805f9b34fb";
+//    public static final UUID CCC = UUID.fromString("00001001-0000-1000-8000-00805f9b34fb");
 
 
     private static final int REQUEST_ENABLE_BT = 666;
@@ -88,7 +93,6 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
 
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-
 
         // Register the BroadcastReceiver
 
@@ -237,10 +241,15 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
+
             //把byte数组转成16进制字符串，方便查看
-            Log.e(TAG, "onScanResult :" + result.getScanRecord().toString());
+//            Log.e(TAG, "onScanResult :" + result.getDevice().getName() +"   " +result.getDevice().getAddress());
             BluetoothDevice device = result.getDevice();
+            result.getScanRecord();
             ScanRecord scanRecord = result.getScanRecord();
+//            if ("B2".equals(device.getName())) {
+//                Log.e(TAG, "  scanRecord  " + result.getDevice().getName() + "    byte  " + BytePrintUtil.bytes2hex(scanRecord.getBytes()));
+//            }
             int rssi = result.getRssi();
             blueAdapter.addDevice(device);
         }
@@ -277,7 +286,9 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices();        //连接成功， 开始搜索服务
                 Log.i(TAG, "onConnectionStateChange  连接成功" + status);
-                Toast.makeText(BluetoothActivity.this,"连接成功",Toast.LENGTH_SHORT).show();
+//                Toast.makeText(BluetoothActivity.this,"连接成功",Toast.LENGTH_SHORT).show();
+            } else {
+                Log.i(TAG, "onConnectionStateChange  连接失败" + status);
             }
         }
 
@@ -290,42 +301,81 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
             Log.i(TAG, "onServicesDiscovered status" + status);
-            List<BluetoothGattService> mServiceList = gatt.getServices();
-            for (BluetoothGattService service : mServiceList) {
-                Log.i(TAG, "onServicesDiscovered " + service.getUuid());
-            }
+            List<BluetoothGattService> services = gatt.getServices();
+            int i = 0;
+//            for (BluetoothGattService service : services) {
+//                Log.i(TAG, " service " + i + "  扫描到service UUID   " + service.getUuid());
+//                i++;
+//                UUID mUuid = service.getUuid();
+////                if (GATT_SERVICE_PRIMARY_1.equals(mUuid.toString())) {
+//                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
+//                        Log.i(TAG, " characteristic  UUID   " + characteristic.getUuid());
+//                        for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
+//                            if (descriptor != null) {
+//                                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//                                bluetoothGatt.writeDescriptor(descriptor);
+//                            }
+////                        }
+//                        bluetoothGatt.setCharacteristicNotification(characteristic, true);
+//                }
+//            }
+//        }
             BluetoothGattService service = gatt.getService(UUID.fromString(GATT_SERVICE_PRIMARY_1));
-            BluetoothGattCharacteristic characterisetic = service.getCharacteristic(UUID.fromString(CHARACTERISTIC_NOTIFY_1));
-            //调用以便当命令发送后返回信息可以自动返回
-            BluetoothGattDescriptor descriptor = characterisetic.getDescriptor(CCC);
+            BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(CHARACTERISTIC_NOTIFY_1));
+            for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
+                if (descriptor != null) {
+                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                    bluetoothGatt.writeDescriptor(descriptor);
+                }
+                boolean isNotify = gatt.setCharacteristicNotification(characteristic, true);
+                Log.i(TAG, " isNotify   " + isNotify);
+            }
+
+//            //调用以便当命令发送后返回信息可以自动返回
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CCCD);
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             gatt.writeDescriptor(descriptor);
-            boolean isNotify = gatt.setCharacteristicNotification(characterisetic, true);
-
         }
 
         @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic
+                characteristic, int status) {
             Log.i(TAG, gatt.getDevice().getName() + " write successfully");
         }
 
         @Override
-        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic
+                characteristic, int status) {
             Log.i(TAG, gatt.getDevice().getName() + " recieved ");
         }
 
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            super.onCharacteristicChanged(gatt, characteristic);
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic
+                characteristic) {
+//        super.onCharacteristicChanged(gatt, characteristic);
             Log.i(TAG, "The response is " + "onCharacteristicChanged" + BytePrintUtil.bytes2hex(characteristic.getValue()));
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
+                                      int status) {
+            super.onDescriptorWrite(gatt, descriptor, status);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.i(TAG, "onDescriptorWrite: " + "设置成功");
+            }else {
+                Log.i(TAG, "onDescriptorWrite: " + "设置失败");
+            }
         }
     };
 
 
-    /**
-     * android 4.3 --  android5.0使用的扫描方法
-     * @param enable
-     */
+/**
+ * android 4.3 --  android5.0使用的扫描方法
+ *
+ * @param enable
+ * <p>
+ * //应该是android 4.3以下查找蓝牙设备的方式
+ */
 //        private void scanLeDevice(boolean enable) {
 //            if (enable) {
 //                // Stops scanning after a pre-defined scan period.
@@ -344,7 +394,7 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
 //            }
 //        }
 
-    // Device scan callback.
+// Device scan callback.
 //        private BluetoothAdapter.LeScanCallback mLeScanCallback =
 //                new BluetoothAdapter.LeScanCallback() {
 //                    @Override

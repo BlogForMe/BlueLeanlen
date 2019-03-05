@@ -1,6 +1,7 @@
 package com.jonzhou.bluetoothlen.transport;
 
 import android.bluetooth.BluetoothDevice;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +21,12 @@ public class  BlueAdapter extends BaseAdapter {
     }
 
     public  void  addDevice(BluetoothDevice device){
-        if (!mLeDevices.contains(device)){
+        if (!TextUtils.isEmpty(device.getName())){
+         if (!mLeDevices.contains(device)){
 //            if (!(device.getBondState()==BluetoothDevice.BOND_BONDED))
             mLeDevices.add(device);
             notifyDataSetChanged();
+           }
         }
     }
 
