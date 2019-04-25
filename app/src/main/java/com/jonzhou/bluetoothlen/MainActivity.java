@@ -1,15 +1,10 @@
 package com.jonzhou.bluetoothlen;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
-import android.bluetooth.le.AdvertiseSettings;
-import android.bluetooth.le.BluetoothLeAdvertiser;
+import android.os.Bundle;
 import android.os.ParcelUuid;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private String TAG = "  MainActivity    ";
