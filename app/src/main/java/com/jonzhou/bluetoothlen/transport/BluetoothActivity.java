@@ -63,10 +63,6 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
 
     public final String TAG = getClass().getSimpleName();
 
-    //    public static final String GATT_SERVICE_PRIMARY_1 = "0000fff0-0000-1000-8000-00805f9b34fb";  // 体达 体温计
-//    public static final String CHARACTERISTIC_NOTIFY_1 = "0000fff1-0000-1000-8000-00805f9b34fb";
-//
-
     public static final String GATT_SERVICE_PRIMARY_1 = "00001000-0000-1000-8000-00805f9b34fb";  // 百捷
     public static final String CHARACTERISTIC_NOTIFY_1 = "00001002-0000-1000-8000-00805f9b34fb";
 
@@ -373,53 +369,11 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
             Log.i(TAG, "onServicesDiscovered status" + status);
-//            List<BluetoothGattService> services = gatt.getServices();
-            enableBeneNotification();
+//            enableBeneNotification(gatt);
 
-//            for (BluetoothGattService service : services) {
-//                Log.i("service uuid ", service.getUuid() + " ");
-//                List<BluetoothGattCharacteristic> serviceCharacteristics = service.getCharacteristics();
-//                for (BluetoothGattCharacteristic characteristic : serviceCharacteristics) {
-//                    for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
-//                        if (descriptor != null) {
-//                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-//                            bluetoothGatt.writeDescriptor(descriptor);
-//                        }
-//                        boolean isNotify = gatt.setCharacteristicNotification(characteristic, true);
-//                        Log.i(TAG, " isNotify   " + isNotify + "   ");
-//                    }
-//                    //调用以便当命令发送后返回信息可以自动返回
-//                    BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CCCD);
-//                    if (descriptor != null) {
-//                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-//                        gatt.writeDescriptor(descriptor);
-//                    }
-//                    bluetoothGatt.setCharacteristicNotification(characteristic, true);
-//                }
-//            }
+            wholeNotify(gatt);
         }
 
-        public void enableBeneNotification() {
-            BluetoothGattService RxService = bluetoothGatt.getService(UUID.fromString(GATT_SERVICE_PRIMARY_1));
-            if (RxService == null) {
-//                Log.e("未找到蓝牙中的对应服务");
-                return;
-            }
-            BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(UUID.fromString(CHARACTERISTIC_NOTIFY_1));
-            if (RxChar == null) {
-//                L.e("未找到蓝牙中的对应特征");
-                return;
-            }
-
-            //设置true为启用通知,false反之
-            boolean isNotify = bluetoothGatt.setCharacteristicNotification(RxChar, true);
-
-            Log.i(TAG, " isNotify    " + isNotify);
-            //下面为开启蓝牙notify功能,向CCCD中写入值1
-            BluetoothGattDescriptor descriptor = RxChar.getDescriptor(CCCD);
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            bluetoothGatt.writeDescriptor(descriptor);
-        }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic
@@ -451,6 +405,50 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
             }
         }
     };
+
+
+    public void enableBeneNotification(BluetoothGatt gatt) {
+        BluetoothGattService gattService = gatt.getService(UUID.fromString(GATT_SERVICE_PRIMARY_1));
+        if (gattService == null) {
+//                Log.e("未找到蓝牙中的对应服务");
+            return;
+        }
+        BluetoothGattCharacteristic RxChar = gattService.getCharacteristic(UUID.fromString(CHARACTERISTIC_NOTIFY_1));
+        if (RxChar == null) {
+//                L.e("未找到蓝牙中的对应特征");
+            return;
+        }
+
+        //设置true为启用通知,false反之
+        boolean isNotify = gatt.setCharacteristicNotification(RxChar, true);
+
+        Log.i(TAG, " isNotify    " + isNotify);
+        //下面为开启蓝牙notify功能,向CCCD中写入值1
+        BluetoothGattDescriptor descriptor = RxChar.getDescriptor(CCCD);
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        gatt.writeDescriptor(descriptor);
+    }
+
+
+    private void wholeNotify(BluetoothGatt gatt) {
+        List<BluetoothGattService> services = gatt.getServices();
+        for (BluetoothGattService service : services) {
+            Log.i("service uuid ", service.getUuid() + " ");
+            if (GATT_SERVICE_PRIMARY_1.equals(String.valueOf(service.getUuid()))) {         //监听所有的  会有问题
+                List<BluetoothGattCharacteristic> serviceCharacteristics = service.getCharacteristics();
+                for (BluetoothGattCharacteristic gattCharacteristic : serviceCharacteristics) {
+                    boolean isNotify = gatt.setCharacteristicNotification(gattCharacteristic, true);
+                    Log.i(TAG, " isNotify    " + isNotify + " GattCharacteristic uuid" + gattCharacteristic.getUuid());
+                    //调用以便当命令发送后返回信息可以自动返回
+                    BluetoothGattDescriptor descriptor = gattCharacteristic.getDescriptor(CCCD);
+                    if (descriptor != null) {
+                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                        gatt.writeDescriptor(descriptor);
+                    }
+                }
+            }
+        }
+    }
 
 
     /**
