@@ -21,38 +21,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.ParcelUuid;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.jonzhou.bluetoothlen.BytePrintUtil;
 import com.jonzhou.bluetoothlen.R;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Pattern;
-
-import static com.jonzhou.bluetoothlen.BleUtil.BRAND_XYY_LK;
 
 
 /**
@@ -89,6 +78,7 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
 
     public static int DEFAULT_VALUE_BULUETOOTH = 1000;
     private BluetoothLeScanner scanner;
+    public static final String BRAND_TWJ_TIDA_01 = "Bluetooth BP"; //Bluetooth BP  TD133
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -294,14 +284,17 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
         scanner = mBluetoothAdapter.getBluetoothLeScanner();
         ScanSettings settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .setReportDelay(500)
+//                .setReportDelay(500)
                 .build();
-//        List<ScanFilter> filters = new ArrayList<>();
+        List<ScanFilter> filters = new ArrayList<>();
+        ScanFilter scanFilter = new ScanFilter.Builder().setDeviceName(BRAND_TWJ_TIDA_01).build();
+        filters.add(scanFilter);
+//        filters.add()
 //        if (BRAND_XYY_LK.equalsIgnoreCase(paramCheck1)) {
 //        filters.add(new ScanFilter.Builder().setServiceUuid(new ParcelUuid(UUID_SERVICE_DATA))
 //                .build());
 //        }
-        scanner.startScan(/*null, settings, */scanCallback);
+        scanner.startScan(filters, settings, scanCallback);
     }
 
     ScanCallback scanCallback = new ScanCallback() {
@@ -325,9 +318,9 @@ public class BluetoothActivity extends AppCompatActivity implements AdapterView.
         public void onBatchScanResults(List<ScanResult> results) {
             super.onBatchScanResults(results);
             Log.e(TAG, "  onBatchScanResults  " + results.size());
-//            for (ScanResult result : results) {
-//                Log.e(TAG, "  result  " + result.getDevice().getName());
-//            }
+            for (ScanResult result : results) {
+                Log.e(TAG, "  result  " + result.getDevice().getName());
+            }
         }
 
         @Override

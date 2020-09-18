@@ -1,1 +1,2 @@
+include ':blescan'
 include ':app'
