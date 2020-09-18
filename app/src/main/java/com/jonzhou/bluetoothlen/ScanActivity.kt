@@ -65,7 +65,13 @@ class ScanActivity : AppCompatActivity() {
 
     fun initScan() {
         scanManager = BluetoothScanManager.getInstance(this)
-        scanManager?.addScanFilterCompats(ScanFilterCompat.Builder().setDeviceName(BRAND_TWJ_TIDA_01).build())
+        val filter1 = ScanFilterCompat.Builder().setDeviceName(BRAND_XTY_YUYUELL_YE8600A).build()
+        val filter2 = ScanFilterCompat.Builder().setDeviceName(BRAND_XTY_YUYUELL_YE650A).build()
+        val filter3 = ScanFilterCompat.Builder().setDeviceName(BRAND_XTY_YUYUELL_YE680A).build()
+        scanManager?.addScanFilterCompats(filter1)
+        scanManager?.addScanFilterCompats(filter2)
+        scanManager?.addScanFilterCompats(filter3)
+
         scanManager?.setScanOverListener(object : ScanOverListener {
             override fun onScanOver() {
 
