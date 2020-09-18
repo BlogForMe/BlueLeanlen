@@ -165,10 +165,10 @@ public class CycledLeScanner {
             if (!isSetScanSetting || scanSettings == null){
                 if (mBackgroundFlag) {
                     Logger.d("starting filtered scan in SCAN_MODE_LOW_POWER");
-                    scanSettings = (new ScanSettingsCompat.Builder().setScanMode(ScanSettingsCompat.SCAN_MODE_LOW_POWER)).build();
+                    scanSettings = (new ScanSettingsCompat.Builder().setScanMode(ScanSettingsCompat.SCAN_MODE_LOW_POWER)).setReportDelay(500).build();
                 } else {
                     Logger.d("starting non-filtered scan in SCAN_MODE_LOW_LATENCY");
-                    scanSettings = (new ScanSettingsCompat.Builder().setScanMode(ScanSettingsCompat.SCAN_MODE_LOW_LATENCY)).build();
+                    scanSettings = (new ScanSettingsCompat.Builder().setScanMode(ScanSettingsCompat.SCAN_MODE_LOW_LATENCY)).setReportDelay(500).build();
                 }
             }
         }

@@ -3,6 +3,7 @@ package com.jonzhou.bluetoothlen
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.ParcelUuid
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -16,12 +17,15 @@ import com.casanube.scan.blecompat.ScanResultCompat
 import com.casanube.scan.device.BleParamsOptions
 import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.activity_scan.*
+import java.util.*
 
 const val BRAND_TWJ_TIDA_01 = "Bluetooth BP" //Bluetooth BP  TD133
 
 const val BRAND_XTY_YUYUELL_YE8600A = "Yuwell BP-YE8600A"
 const val BRAND_XTY_YUYUELL_YE650A = "Yuwell BP-YE650A"
 const val BRAND_XTY_YUYUELL_YE680A = "Yuwell BP-YE680A"
+
+val BP_SERVICE_UUID = UUID.fromString("00001810-0000-1000-8000-00805f9b34fb")
 
 class ScanActivity : AppCompatActivity() {
     private var scanManager: BluetoothScanManager? = null
@@ -65,11 +69,13 @@ class ScanActivity : AppCompatActivity() {
 
     fun initScan() {
         scanManager = BluetoothScanManager.getInstance(this)
-        val filter1 = ScanFilterCompat.Builder().setDeviceName(BRAND_XTY_YUYUELL_YE8600A).build()
-        val filter2 = ScanFilterCompat.Builder().setDeviceName(BRAND_XTY_YUYUELL_YE650A).build()
-        val filter3 = ScanFilterCompat.Builder().setDeviceName(BRAND_XTY_YUYUELL_YE680A).build()
-        scanManager?.addScanFilterCompats(filter1)
-        scanManager?.addScanFilterCompats(filter2)
+//        val filter1 = ScanFilterCompat.Builder().setDeviceName(BRAND_XTY_YUYUELL_YE8600A).build()
+//        val filter2 = ScanFilterCompat.Builder().setDeviceName(BRAND_XTY_YUYUELL_YE650A).build()
+//        val filter3 = ScanFilterCompat.Builder().setDeviceName(BRAND_XTY_YUYUELL_YE680A).build()
+        val filter3 = ScanFilterCompat.Builder()
+                .setServiceUuid(ParcelUuid(BP_SERVICE_UUID)).build()
+//        scanManager?.addScanFilterCompats(filter1)
+//        scanManager?.addScanFilterCompats(filter2)
         scanManager?.addScanFilterCompats(filter3)
 
         scanManager?.setScanOverListener(object : ScanOverListener {
@@ -81,7 +87,13 @@ class ScanActivity : AppCompatActivity() {
             override fun onScanResult(callbackType: Int, result: ScanResultCompat?) {
                 super.onScanResult(callbackType, result)
                 val deviceName = result?.scanRecord?.deviceName
-                Logger.i("scan device " + result?.getLeDevice()?.getAddress() + " " + deviceName);
+                synchronized(this){
+                    if (!scanManager!!.isPauseScanning){
+                        scanManager?.stopCycleScan()
+                        Logger.i("scan device " + result?.getLeDevice()?.getAddress() + " " + deviceName);
+                    }
+                }
+
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResultCompat>?) {
