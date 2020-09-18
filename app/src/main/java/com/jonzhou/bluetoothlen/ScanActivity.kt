@@ -31,8 +31,9 @@ class ScanActivity : AppCompatActivity() {
         setContentView(R.layout.activity_scan)
 
 //        BleManager.setBleParamsOptions(ConstValue.getBleOptions(this));
-        BleManager.setBleParamsOptions(BleParamsOptions.Builder() //                .setBackgroundBetweenScanPeriod(5 * 60 * 1000)
-                //                .setBackgroundScanPeriod(10000)
+        BleManager.setBleParamsOptions(BleParamsOptions.Builder()
+                //.setBackgroundBetweenScanPeriod(5 * 60 * 1000)
+                //.setBackgroundScanPeriod(10000)
                 .setForegroundBetweenScanPeriod(10000)
                 .setForegroundScanPeriod(10000)
                 .setDebugMode(BuildConfig.DEBUG) //                .setMaxConnectDeviceNum(5)
